@@ -1,0 +1,997 @@
+Yes, SurveyMonkey is an online survey development cloud-based software as a service company. It provides tools for individuals and businesses to create and distribute surveys, collect responses, and analyze the data. SurveyMonkey offers a variety of question types, templates, and customization options to help users design surveys tailored to their specific needs. The platform is widely used for market research, customer feedback, employee satisfaction, and other types of data collection. It also offers advanced features like data analysis, reporting, and integration with other software tools.
+
+can u design db scmema, api flow as low level design interview
+Certainly! Designing a database schema and API flow is a common task in low-level design interviews. Below, I'll outline a basic example of how you might approach this for a simple survey application similar to SurveyMonkey.
+
+Database Schema
+Let's start by designing a database schema for a survey application. The schema will include tables for users, surveys, questions, responses, and options.
+
+Tables
+Users
+
+user_id (Primary Key)
+
+username
+
+email
+
+password_hash
+
+created_at
+
+Surveys
+
+survey_id (Primary Key)
+
+user_id (Foreign Key to Users)
+
+title
+
+description
+
+created_at
+
+updated_at
+
+Questions
+
+question_id (Primary Key)
+
+survey_id (Foreign Key to Surveys)
+
+question_text
+
+question_type (e.g., multiple-choice, text, etc.)
+
+created_at
+
+updated_at
+
+Options
+
+option_id (Primary Key)
+
+question_id (Foreign Key to Questions)
+
+option_text
+
+created_at
+
+updated_at
+
+Responses
+
+response_id (Primary Key)
+
+survey_id (Foreign Key to Surveys)
+
+user_id (Foreign Key to Users)
+
+question_id (Foreign Key to Questions)
+
+option_id (Foreign Key to Options, nullable)
+
+response_text (nullable, for text responses)
+
+created_at
+
+API Flow
+Now, let's design the API flow for creating a survey, adding questions, and submitting responses.
+
+1. Create a Survey
+Endpoint: POST /surveys
+
+Request Body:
+
+json
+Copy
+{
+  "user_id": 1,
+  "title": "Customer Satisfaction Survey",
+  "description": "Please provide your feedback on our services."
+}
+Response:
+
+json
+Copy
+{
+  "survey_id": 1,
+  "title": "Customer Satisfaction Survey",
+  "description": "Please provide your feedback on our services.",
+  "created_at": "2023-10-01T12:00:00Z"
+}
+2. Add Questions to a Survey
+Endpoint: POST /surveys/{survey_id}/questions
+
+Request Body:
+
+json
+Copy
+{
+  "question_text": "How satisfied are you with our service?",
+  "question_type": "multiple-choice",
+  "options": [
+    {"option_text": "Very Satisfied"},
+    {"option_text": "Satisfied"},
+    {"option_text": "Neutral"},
+    {"option_text": "Dissatisfied"},
+    {"option_text": "Very Dissatisfied"}
+  ]
+}
+Response:
+
+json
+Copy
+{
+  "question_id": 1,
+  "survey_id": 1,
+  "question_text": "How satisfied are you with our service?",
+  "question_type": "multiple-choice",
+  "options": [
+    {"option_id": 1, "option_text": "Very Satisfied"},
+    {"option_id": 2, "option_text": "Satisfied"},
+    {"option_id": 3, "option_text": "Neutral"},
+    {"option_id": 4, "option_text": "Dissatisfied"},
+    {"option_id": 5, "option_text": "Very Dissatisfied"}
+  ],
+  "created_at": "2023-10-01T12:05:00Z"
+}
+3. Submit a Response
+Endpoint: POST /surveys/{survey_id}/responses
+
+Request Body:
+
+json
+Copy
+{
+  "user_id": 2,
+  "responses": [
+    {
+      "question_id": 1,
+      "option_id": 1
+    },
+    {
+      "question_id": 2,
+      "response_text": "I love your service!"
+    }
+  ]
+}
+Response:
+
+json
+Copy
+{
+  "response_id": 1,
+  "survey_id": 1,
+  "user_id": 2,
+  "created_at": "2023-10-01T12:10:00Z"
+}
+Summary
+Database Schema: Designed tables for users, surveys, questions, options, and responses.
+
+API Flow: Created endpoints for creating surveys, adding questions, and submitting responses.
+
+This is a basic example, and in a real-world scenario, you would need to consider additional factors like authentication, validation, error handling, and more complex querying and reporting needs.
+
+what is high level arch flow?
+The high-level architecture flow of a system like SurveyMonkey (or any survey application) provides an overview of how different components interact to deliver the functionality. It focuses on the key components, their responsibilities, and how they communicate with each other. Below is a high-level architecture flow for a survey application:
+
+High-Level Architecture Flow
+1. Client Layer (Frontend)
+Web Application: Built using frameworks like React, Angular, or Vue.js.
+
+Mobile Application: Native (Swift, Kotlin) or cross-platform (Flutter, React Native).
+
+Responsibilities:
+
+Render the user interface (UI) for creating surveys, answering questions, and viewing results.
+
+Handle user interactions (e.g., clicking buttons, filling out forms).
+
+Communicate with the backend via APIs.
+
+2. API Gateway
+Purpose: Acts as a single entry point for all client requests.
+
+Responsibilities:
+
+Route requests to the appropriate microservices.
+
+Handle authentication and authorization (e.g., JWT validation).
+
+Rate limiting and request throttling.
+
+Logging and monitoring.
+
+3. Backend Services (Microservices)
+The backend is divided into multiple microservices, each responsible for a specific functionality:
+
+User Service:
+
+Manages user authentication, registration, and profile information.
+
+Stores user data in the User Database.
+
+Handles login, signup, and password reset.
+
+Survey Service:
+
+Handles survey creation, editing, and deletion.
+
+Stores survey metadata (title, description, etc.) in the Survey Database.
+
+Manages relationships between surveys and questions.
+
+Question Service:
+
+Manages questions and their options (e.g., multiple-choice, text-based).
+
+Stores question data in the Question Database.
+
+Validates question types and options.
+
+Response Service:
+
+Handles survey responses submitted by users.
+
+Stores responses in the Response Database.
+
+Ensures data integrity (e.g., one response per user per survey).
+
+Analytics Service:
+
+Processes survey response data to generate insights (e.g., charts, statistics).
+
+Stores aggregated data in the Analytics Database.
+
+Provides APIs for fetching reports and dashboards.
+
+4. Databases
+User Database: Stores user information (e.g., username, email, password hash).
+
+Survey Database: Stores survey metadata (e.g., title, description, creator).
+
+Question Database: Stores questions and their options.
+
+Response Database: Stores user responses to surveys.
+
+Analytics Database: Stores precomputed analytics data for fast retrieval.
+
+5. Message Queue (Optional)
+Purpose: Handles asynchronous tasks (e.g., sending emails, generating reports).
+
+Example: RabbitMQ, Apache Kafka.
+
+Use Case:
+
+When a user submits a response, the Response Service publishes an event to the message queue.
+
+The Analytics Service consumes the event and updates the analytics data.
+
+6. Cache Layer
+Purpose: Improves performance by caching frequently accessed data.
+
+Example: Redis, Memcached.
+
+Use Cases:
+
+Cache survey metadata for faster loading.
+
+Cache precomputed analytics data for dashboards.
+
+7. Storage Layer
+Purpose: Stores files (e.g., images, documents) uploaded by users.
+
+Example: AWS S3, Google Cloud Storage.
+
+Use Case:
+
+If a survey allows image uploads as part of a response, the files are stored here.
+
+8. Notification Service
+Purpose: Sends notifications (e.g., email, SMS) to users.
+
+Example:
+
+Notify survey creators when a response is submitted.
+
+Send reminders to users to complete surveys.
+
+9. Monitoring and Logging
+Purpose: Ensures the system is running smoothly and helps debug issues.
+
+Tools:
+
+Logging: ELK Stack (Elasticsearch, Logstash, Kibana) or Splunk.
+
+Monitoring: Prometheus, Grafana, or New Relic.
+
+Error Tracking: Sentry or Rollbar.
+
+High-Level Flow
+User Interaction:
+
+A user logs in via the Client Layer (web or mobile app).
+
+The request is routed through the API Gateway to the User Service for authentication.
+
+Survey Creation:
+
+The user creates a survey using the Survey Service.
+
+Questions are added using the Question Service.
+
+Data is stored in the Survey Database and Question Database.
+
+Survey Response:
+
+A respondent submits a response via the Client Layer.
+
+The Response Service processes the response and stores it in the Response Database.
+
+An event is published to the Message Queue for the Analytics Service to process.
+
+Analytics and Reporting:
+
+The Analytics Service processes the response data and updates the Analytics Database.
+
+The user views survey results and insights via the Client Layer.
+
+Notifications:
+
+The Notification Service sends emails or SMS to users (e.g., survey reminders, response alerts).
+
+Diagram
+Copy
+Client Layer (Web/Mobile) → API Gateway → Backend Services (User, Survey, Question, Response, Analytics) → Databases (User, Survey, Question, Response, Analytics)
+                                                                                     ↓
+                                                                             Message Queue → Analytics Service
+                                                                                     ↓
+                                                                             Notification Service
+                                                                                     ↓
+                                                                             Monitoring & Logging
+Key Considerations
+Scalability: Use load balancers, caching, and database sharding to handle high traffic.
+
+Security: Implement authentication, authorization, and data encryption.
+
+Performance: Optimize database queries and use caching for frequently accessed data.
+
+Fault Tolerance: Use retries, circuit breakers, and redundancy to ensure system reliability.
+
+This high-level architecture flow provides a scalable, modular, and maintainable design for a survey application like SurveyMonkey.
+
+how flow of survey creation works?
+The flow of survey creation in a system like SurveyMonkey involves multiple steps and interactions between the client (frontend), backend services, and databases. Below is a detailed explanation of how this flow works:
+
+Survey Creation Flow
+1. User Authentication
+Step: The user logs in to the application.
+
+Flow:
+
+The client (web or mobile app) sends a login request to the API Gateway.
+
+The API Gateway routes the request to the User Service.
+
+The User Service validates the credentials and returns a JWT (JSON Web Token) for authentication.
+
+The client stores the JWT and includes it in subsequent requests.
+
+2. Survey Creation Request
+Step: The user initiates the creation of a new survey.
+
+Flow:
+
+The client sends a POST /surveys request to the API Gateway with the survey details (e.g., title, description).
+
+The API Gateway validates the JWT and routes the request to the Survey Service.
+
+The Survey Service:
+
+Validates the request payload.
+
+Creates a new survey record in the Survey Database.
+
+Returns the survey_id to the client.
+
+3. Adding Questions
+Step: The user adds questions to the survey.
+
+Flow:
+
+For each question, the client sends a POST /surveys/{survey_id}/questions request to the API Gateway.
+
+The API Gateway validates the JWT and routes the request to the Question Service.
+
+The Question Service:
+
+Validates the question data (e.g., question text, type, options).
+
+Creates a new question record in the Question Database.
+
+Links the question to the survey using the survey_id.
+
+Returns the question_id to the client.
+
+4. Adding Options (for Multiple-Choice Questions)
+Step: If the question type is multiple-choice, the user adds options.
+
+Flow:
+
+For each option, the client sends a POST /questions/{question_id}/options request to the API Gateway.
+
+The API Gateway validates the JWT and routes the request to the Question Service.
+
+The Question Service:
+
+Validates the option data (e.g., option text).
+
+Creates a new option record in the Question Database.
+
+Links the option to the question using the question_id.
+
+Returns the option_id to the client.
+
+5. Saving the Survey
+Step: The user finalizes and saves the survey.
+
+Flow:
+
+The client sends a PUT /surveys/{survey_id} request to mark the survey as "complete."
+
+The API Gateway validates the JWT and routes the request to the Survey Service.
+
+The Survey Service:
+
+Updates the survey status in the Survey Database.
+
+Returns a success response to the client.
+
+6. Publishing the Survey
+Step: The user publishes the survey to make it available for responses.
+
+Flow:
+
+The client sends a POST /surveys/{survey_id}/publish request to the API Gateway.
+
+The API Gateway validates the JWT and routes the request to the Survey Service.
+
+The Survey Service:
+
+Updates the survey status to "published" in the Survey Database.
+
+Triggers a notification (via the Notification Service) to inform the user that the survey is live.
+
+Returns a success response to the client.
+
+Data Flow Diagram
+Copy
+Client → API Gateway → Survey Service → Survey Database
+                          ↓
+                   Question Service → Question Database
+                          ↓
+                   Notification Service
+Example API Requests
+1. Create Survey
+Request:
+
+Copy
+POST /surveys
+{
+  "user_id": 1,
+  "title": "Customer Feedback Survey",
+  "description": "Please share your feedback."
+}
+Response:
+
+Copy
+{
+  "survey_id": 123,
+  "title": "Customer Feedback Survey",
+  "description": "Please share your feedback.",
+  "status": "draft",
+  "created_at": "2023-10-01T12:00:00Z"
+}
+2. Add Question
+Request:
+
+Copy
+POST /surveys/123/questions
+{
+  "question_text": "How satisfied are you with our service?",
+  "question_type": "multiple-choice"
+}
+Response:
+
+Copy
+{
+  "question_id": 456,
+  "survey_id": 123,
+  "question_text": "How satisfied are you with our service?",
+  "question_type": "multiple-choice",
+  "created_at": "2023-10-01T12:05:00Z"
+}
+3. Add Option
+Request:
+
+Copy
+POST /questions/456/options
+{
+  "option_text": "Very Satisfied"
+}
+Response:
+
+Copy
+{
+  "option_id": 789,
+  "question_id": 456,
+  "option_text": "Very Satisfied",
+  "created_at": "2023-10-01T12:10:00Z"
+}
+4. Publish Survey
+Request:
+
+Copy
+POST /surveys/123/publish
+Response:
+
+Copy
+{
+  "survey_id": 123,
+  "status": "published",
+  "published_at": "2023-10-01T12:15:00Z"
+}
+Key Considerations
+Validation:
+
+Ensure all inputs (e.g., survey title, question text, options) are validated to prevent invalid data.
+
+Error Handling:
+
+Handle errors gracefully (e.g., invalid survey ID, missing fields).
+
+Atomicity:
+
+Use database transactions to ensure data consistency (e.g., if adding a question fails, roll back the entire operation).
+
+Performance:
+
+Optimize database queries and use caching for frequently accessed data (e.g., survey metadata).
+
+Security:
+
+Validate JWT tokens and ensure only authorized users can create or modify surveys.
+
+This flow ensures a smooth and efficient process for survey creation, from initial setup to publishing.
+
+how the end user flow looks like
+The end-user flow in a survey application like SurveyMonkey refers to the steps a respondent (end-user) takes to find, complete, and submit a survey. This flow is distinct from the survey creator's flow and focuses on simplicity, usability, and responsiveness. Below is a detailed explanation of the end-user flow:
+
+End-User Flow
+1. Accessing the Survey
+Step: The end-user receives a link to the survey.
+
+Flow:
+
+The user clicks on the survey link (e.g., shared via email, SMS, or social media).
+
+The link redirects the user to the survey page hosted on the application.
+
+2. Landing Page
+Step: The user lands on the survey introduction page.
+
+Flow:
+
+The client (web or mobile app) fetches survey metadata (e.g., title, description) from the Survey Service via the API Gateway.
+
+The survey details are displayed to the user.
+
+The user clicks a "Start Survey" button to begin.
+
+3. Answering Questions
+Step: The user answers the survey questions one by one.
+
+Flow:
+
+The client fetches the first question and its options (if applicable) from the Question Service via the API Gateway.
+
+The user provides an answer:
+
+For multiple-choice questions, the user selects an option.
+
+For text-based questions, the user types a response.
+
+The client validates the response locally (e.g., ensuring a required question is answered).
+
+The user clicks "Next" to proceed to the next question.
+
+Steps 1–4 repeat until all questions are answered.
+
+4. Review and Submit
+Step: The user reviews their responses and submits the survey.
+
+Flow:
+
+The client displays a summary of all responses for review.
+
+The user confirms and clicks "Submit."
+
+The client sends the responses to the Response Service via the API Gateway.
+
+The Response Service:
+
+Validates the responses.
+
+Stores the responses in the Response Database.
+
+Triggers an event (e.g., via a Message Queue) to notify the Analytics Service for processing.
+
+The client displays a "Thank You" page to the user.
+
+5. Post-Submission (Optional)
+Step: The user may receive a confirmation or follow-up.
+
+Flow:
+
+The Notification Service sends a confirmation email or SMS to the user (if configured by the survey creator).
+
+The user may be redirected to a custom "Thank You" page or prompted to share the survey with others.
+
+Data Flow Diagram
+Copy
+End-User → Client → API Gateway → Survey Service → Survey Database
+                              ↓
+                       Question Service → Question Database
+                              ↓
+                       Response Service → Response Database
+                              ↓
+                       Notification Service
+Example API Requests
+1. Fetch Survey Details
+Request:
+
+Copy
+GET /surveys/123
+Response:
+
+Copy
+{
+  "survey_id": 123,
+  "title": "Customer Feedback Survey",
+  "description": "Please share your feedback.",
+  "status": "published"
+}
+2. Fetch Questions
+Request:
+
+Copy
+GET /surveys/123/questions
+Response:
+
+Copy
+[
+  {
+    "question_id": 456,
+    "question_text": "How satisfied are you with our service?",
+    "question_type": "multiple-choice",
+    "options": [
+      {"option_id": 789, "option_text": "Very Satisfied"},
+      {"option_id": 790, "option_text": "Satisfied"},
+      {"option_id": 791, "option_text": "Neutral"},
+      {"option_id": 792, "option_text": "Dissatisfied"},
+      {"option_id": 793, "option_text": "Very Dissatisfied"}
+    ]
+  },
+  {
+    "question_id": 457,
+    "question_text": "Any additional comments?",
+    "question_type": "text"
+  }
+]
+3. Submit Responses
+Request:
+
+Copy
+POST /surveys/123/responses
+{
+  "user_id": 2, // Optional, if the user is logged in
+  "responses": [
+    {
+      "question_id": 456,
+      "option_id": 789 // For multiple-choice
+    },
+    {
+      "question_id": 457,
+      "response_text": "Great service!" // For text-based
+    }
+  ]
+}
+Response:
+
+Copy
+{
+  "response_id": 101,
+  "survey_id": 123,
+  "user_id": 2,
+  "submitted_at": "2023-10-01T12:30:00Z"
+}
+Key Considerations
+Usability:
+
+Ensure the survey is easy to navigate (e.g., progress bar, clear instructions).
+
+Use responsive design for mobile and desktop users.
+
+Validation:
+
+Validate responses on the client side (e.g., ensure required questions are answered).
+
+Revalidate on the server side to prevent invalid data.
+
+Performance:
+
+Optimize API calls to fetch questions and options (e.g., pagination for long surveys).
+
+Use caching for frequently accessed data (e.g., survey metadata).
+
+Security:
+
+Prevent unauthorized access to surveys (e.g., use unique survey links or authentication).
+
+Ensure data privacy (e.g., anonymize responses if required).
+
+Error Handling:
+
+Handle errors gracefully (e.g., display a friendly message if the survey fails to load).
+
+Example User Interface Flow
+Landing Page:
+
+Survey Title: "Customer Feedback Survey"
+
+Description: "Please share your feedback."
+
+Button: "Start Survey"
+
+Question Page:
+
+Question: "How satisfied are you with our service?"
+
+Options: Radio buttons for "Very Satisfied," "Satisfied," etc.
+
+Buttons: "Previous" (disabled for the first question) and "Next."
+
+Review Page:
+
+Summary of responses:
+
+"How satisfied are you with our service?" → "Very Satisfied"
+
+"Any additional comments?" → "Great service!"
+
+Button: "Submit"
+
+Thank You Page:
+
+Message: "Thank you for completing the survey!"
+
+Optional: "Share this survey with others."
+
+This end-user flow ensures a seamless and engaging experience for respondents, encouraging higher completion rates and accurate responses.
+
+which database is to use here?
+Choosing the right database for a survey application like SurveyMonkey depends on the type of data being stored, the scale of the application, and the specific use cases (e.g., structured data, unstructured data, real-time analytics). Below is a breakdown of the database types and recommendations for each component of the system:
+
+1. Relational Database (SQL)
+Relational databases are ideal for structured data with well-defined relationships (e.g., users, surveys, questions, options, responses).
+
+Use Cases:
+User Data: Store user profiles, authentication details, and preferences.
+
+Survey Metadata: Store survey titles, descriptions, and statuses.
+
+Questions and Options: Store questions, their types, and options (for multiple-choice questions).
+
+Responses: Store user responses to surveys.
+
+Recommended Databases:
+PostgreSQL: A powerful, open-source relational database with support for JSON, full-text search, and scalability.
+
+MySQL: A widely-used relational database with good performance and ease of use.
+
+Amazon RDS: A managed relational database service (supports PostgreSQL, MySQL, etc.).
+
+Example Schema:
+sql
+Copy
+-- Users Table
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Surveys Table
+CREATE TABLE surveys (
+    survey_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    status VARCHAR(50) DEFAULT 'draft',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Questions Table
+CREATE TABLE questions (
+    question_id SERIAL PRIMARY KEY,
+    survey_id INT REFERENCES surveys(survey_id),
+    question_text TEXT NOT NULL,
+    question_type VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Options Table
+CREATE TABLE options (
+    option_id SERIAL PRIMARY KEY,
+    question_id INT REFERENCES questions(question_id),
+    option_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Responses Table
+CREATE TABLE responses (
+    response_id SERIAL PRIMARY KEY,
+    survey_id INT REFERENCES surveys(survey_id),
+    user_id INT REFERENCES users(user_id),
+    question_id INT REFERENCES questions(question_id),
+    option_id INT REFERENCES options(option_id),
+    response_text TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+2. NoSQL Database
+NoSQL databases are ideal for unstructured or semi-structured data, high write throughput, and flexible schemas.
+
+Use Cases:
+Analytics Data: Store aggregated survey results, charts, and reports.
+
+Caching: Store frequently accessed data (e.g., survey metadata, precomputed analytics).
+
+File Storage: Store files (e.g., images, documents) uploaded as part of responses.
+
+Recommended Databases:
+MongoDB: A document-oriented NoSQL database with flexible schemas and scalability.
+
+Cassandra: A distributed NoSQL database for high write throughput and scalability.
+
+Amazon DynamoDB: A managed NoSQL database with seamless scalability and low latency.
+
+Example Schema (MongoDB):
+json
+Copy
+// Survey Document
+{
+  "_id": "survey_123",
+  "title": "Customer Feedback Survey",
+  "description": "Please share your feedback.",
+  "status": "published",
+  "created_at": "2023-10-01T12:00:00Z",
+  "questions": [
+    {
+      "question_id": "question_456",
+      "question_text": "How satisfied are you with our service?",
+      "question_type": "multiple-choice",
+      "options": [
+        {"option_id": "option_789", "option_text": "Very Satisfied"},
+        {"option_id": "option_790", "option_text": "Satisfied"}
+      ]
+    }
+  ]
+}
+
+// Response Document
+{
+  "_id": "response_101",
+  "survey_id": "survey_123",
+  "user_id": "user_2",
+  "responses": [
+    {
+      "question_id": "question_456",
+      "option_id": "option_789"
+    },
+    {
+      "question_id": "question_457",
+      "response_text": "Great service!"
+    }
+  ],
+  "created_at": "2023-10-01T12:30:00Z"
+}
+3. In-Memory Database (Caching)
+In-memory databases are ideal for caching frequently accessed data to improve performance.
+
+Use Cases:
+Survey Metadata: Cache survey details to reduce database load.
+
+Analytics Data: Cache precomputed analytics for fast retrieval.
+
+Recommended Databases:
+Redis: A fast, in-memory key-value store with support for data structures like lists, sets, and hashes.
+
+Memcached: A simple, high-performance caching system.
+
+Example Use Case:
+Cache survey metadata with a TTL (Time to Live) of 1 hour:
+
+bash
+Copy
+SET survey_123 '{"title": "Customer Feedback Survey", "description": "Please share your feedback."}' EX 3600
+4. Data Warehouse (Analytics)
+Data warehouses are ideal for large-scale analytics and reporting.
+
+Use Cases:
+Aggregated Analytics: Store precomputed survey results for dashboards and reports.
+
+Historical Data: Store long-term survey data for trend analysis.
+
+Recommended Databases:
+Amazon Redshift: A fully managed data warehouse for large-scale analytics.
+
+Google BigQuery: A serverless, highly scalable data warehouse.
+
+Snowflake: A cloud-based data platform with support for structured and semi-structured data.
+
+Example Use Case:
+Store aggregated survey results for fast querying:
+
+sql
+Copy
+CREATE TABLE survey_analytics (
+    survey_id INT,
+    question_id INT,
+    option_id INT,
+    response_count INT,
+    created_at TIMESTAMP
+);
+5. File Storage
+File storage systems are ideal for storing files (e.g., images, documents) uploaded as part of survey responses.
+
+Use Cases:
+File Uploads: Store files uploaded by respondents (e.g., images, PDFs).
+
+Recommended Solutions:
+Amazon S3: A scalable object storage service.
+
+Google Cloud Storage: A unified object storage solution.
+
+Azure Blob Storage: A massively scalable object storage service.
+
+Example Use Case:
+Store an image uploaded as part of a response:
+
+bash
+Copy
+PUT /responses/101/files/image.jpg
+Summary of Database Choices
+Component	Database Type	Recommended Database
+User Data	Relational (SQL)	PostgreSQL, MySQL
+Survey Metadata	Relational (SQL)	PostgreSQL, MySQL
+Questions & Options	Relational (SQL)	PostgreSQL, MySQL
+Responses	Relational (SQL)	PostgreSQL, MySQL
+Analytics Data	NoSQL / Data Warehouse	MongoDB, Amazon Redshift
+Caching	In-Memory	Redis, Memcached
+File Storage	Object Storage	Amazon S3, Google Cloud Storage
+Final Recommendation
+Use a relational database (PostgreSQL or MySQL) for structured data (users, surveys, questions, options, responses).
+
+Use a NoSQL database (MongoDB) or data warehouse (Amazon Redshift) for analytics and reporting.
+
+Use an in-memory database (Redis) for caching frequently accessed data.
+
+Use object storage (Amazon S3) for file uploads.
+
+This combination ensures scalability, performance, and flexibility for a survey application like SurveyMonkey.

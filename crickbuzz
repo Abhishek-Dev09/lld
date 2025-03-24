@@ -1,0 +1,512 @@
+Designing a system like Cricbuzz involves creating a robust architecture, database schema, and flow to handle real-time cricket scores, news, commentary, and user interactions. Below is a high-level design for the system:
+
+1. High-Level Architecture
+The system can be divided into the following components:
+
+User Interface (Frontend):
+
+Web and mobile apps for users to view scores, news, and commentary.
+
+Supports features like live scores, match schedules, player stats, and notifications.
+
+Backend Services:
+
+Score Service: Fetches and updates live scores from data providers.
+
+News Service: Manages cricket-related news articles and updates.
+
+Commentary Service: Handles real-time ball-by-ball commentary.
+
+User Service: Manages user profiles, preferences, and notifications.
+
+Analytics Service: Tracks user behavior and provides insights.
+
+Data Providers:
+
+Third-party APIs or data feeds for live scores, player stats, and match schedules.
+
+Database:
+
+Stores match data, user data, news, and commentary.
+
+Caching Layer:
+
+Redis or Memcached for caching frequently accessed data like live scores and commentary.
+
+Message Queue:
+
+Kafka or RabbitMQ for handling real-time updates and notifications.
+
+Notification Service:
+
+Sends push notifications and emails for match updates, news, and alerts.
+
+CDN:
+
+For serving static assets like images, videos, and news articles.
+
+2. Database Schema
+The database schema will consist of multiple tables to store match data, user data, and other related information.
+
+Tables:
+Matches:
+
+match_id (PK)
+
+team1_id (FK to Teams)
+
+team2_id (FK to Teams)
+
+venue
+
+start_time
+
+end_time
+
+status (e.g., "upcoming", "live", "completed")
+
+Teams:
+
+team_id (PK)
+
+team_name
+
+country
+
+Players:
+
+player_id (PK)
+
+player_name
+
+team_id (FK to Teams)
+
+role (e.g., batsman, bowler)
+
+Scorecards:
+
+scorecard_id (PK)
+
+match_id (FK to Matches)
+
+team_id (FK to Teams)
+
+total_runs
+
+wickets
+
+overs
+
+Ball-by-Ball Commentary:
+
+commentary_id (PK)
+
+match_id (FK to Matches)
+
+over
+
+ball
+
+batsman_id (FK to Players)
+
+bowler_id (FK to Players)
+
+runs
+
+wicket (boolean)
+
+commentary_text
+
+News:
+
+news_id (PK)
+
+title
+
+content
+
+published_date
+
+author
+
+Users:
+
+user_id (PK)
+
+username
+
+email
+
+password_hash
+
+preferences (e.g., favorite teams, players)
+
+Notifications:
+
+notification_id (PK)
+
+user_id (FK to Users)
+
+message
+
+timestamp
+
+status (e.g., "sent", "read")
+
+User Preferences:
+
+preference_id (PK)
+
+user_id (FK to Users)
+
+favorite_team_id (FK to Teams)
+
+favorite_player_id (FK to Players)
+
+3. System Flow
+Live Scores:
+
+Data providers push live scores to the Score Service.
+
+The service updates the Scorecards table and caches the data in Redis.
+
+The frontend fetches live scores from the cache.
+
+Commentary:
+
+Data providers push ball-by-ball commentary to the Commentary Service.
+
+The service stores the data in the Ball-by-Ball Commentary table and publishes updates to Kafka.
+
+The frontend subscribes to Kafka topics to display real-time commentary.
+
+News:
+
+The News Service fetches cricket news from data providers or internal editors.
+
+News articles are stored in the News table and served to users via the frontend.
+
+User Interactions:
+
+Users can sign up, log in, and set preferences (e.g., favorite teams, players).
+
+The User Service manages user data and preferences.
+
+The Notification Service sends alerts based on user preferences (e.g., match updates, news).
+
+Analytics:
+
+The Analytics Service tracks user behavior (e.g., pages visited, notifications clicked).
+
+Data is stored in a separate analytics database for reporting and insights.
+
+4. Technology Stack
+Frontend: React.js, React Native (for mobile apps)
+
+Backend: Node.js, Python, or Java (Spring Boot)
+
+Database: PostgreSQL or MySQL
+
+Caching: Redis
+
+Message Queue: Kafka or RabbitMQ
+
+Notification Service: Firebase Cloud Messaging (FCM) or AWS SNS
+
+CDN: Cloudflare or AWS CloudFront
+
+Hosting: AWS, GCP, or Azure
+
+5. Scalability Considerations
+Use sharding for the database to handle large volumes of match and user data.
+
+Implement load balancing for backend services to distribute traffic.
+
+Use auto-scaling for backend services and caching layers.
+
+Optimize database queries and use indexing for faster reads.
+
+6. Example API Endpoints
+GET /matches: Fetch list of upcoming/live matches.
+
+GET /matches/{match_id}/scorecard: Fetch scorecard for a specific match.
+
+GET /matches/{match_id}/commentary: Fetch ball-by-ball commentary.
+
+POST /users: Create a new user.
+
+GET /news: Fetch latest cricket news.
+
+POST /notifications: Send notifications to users.
+
+This design provides a scalable and modular architecture for a system like Cricbuzz. It can be extended further based on specific requirements and features.
+
+you can take references form here - https://gitlab.com/shrayansh8/interviewcodingpractise/-/tree/main/src/LowLevelDesign/LLDCricbuzz
+Thank you for sharing the reference link! Based on the structure and design principles from the provided GitLab repository, I can refine the Low-Level Design (LLD) for a Cricbuzz-like application. Below is an updated and more detailed design, incorporating concepts from the repository.
+
+1. Core Components
+The system can be broken down into the following core components:
+
+Match Management:
+
+Handles match schedules, live scores, and match details.
+
+Player and Team Management:
+
+Manages player and team information.
+
+Commentary System:
+
+Provides ball-by-ball commentary for live matches.
+
+News and Articles:
+
+Manages cricket-related news and articles.
+
+User Management:
+
+Handles user profiles, preferences, and notifications.
+
+Notification System:
+
+Sends real-time notifications for match updates and news.
+
+2. Class Diagram
+Here’s a simplified class diagram based on the repository structure:
+
+Match Management:
+plaintext
+Copy
+class Match {
+    +String matchId
+    +Team team1
+    +Team team2
+    +String venue
+    +Date startTime
+    +Date endTime
+    +MatchStatus status
+    +List<Inning> innings
+    +Scorecard scorecard
+}
+
+class Inning {
+    +String inningId
+    +Team battingTeam
+    +Team bowlingTeam
+    +List<Over> overs
+}
+
+class Over {
+    +String overId
+    +int overNumber
+    +List<Ball> balls
+}
+
+class Ball {
+    +String ballId
+    +Player batsman
+    +Player bowler
+    +int runs
+    +boolean isWicket
+    +String commentary
+}
+
+class Scorecard {
+    +String scorecardId
+    +int totalRuns
+    +int wickets
+    +double overs
+}
+Player and Team Management:
+plaintext
+Copy
+class Team {
+    +String teamId
+    +String teamName
+    +String country
+    +List<Player> players
+}
+
+class Player {
+    +String playerId
+    +String playerName
+    +PlayerRole role
+}
+
+enum PlayerRole {
+    BATSMAN,
+    BOWLER,
+    ALL_ROUNDER,
+    WICKETKEEPER
+}
+Commentary System:
+plaintext
+Copy
+class Commentary {
+    +String commentaryId
+    +String matchId
+    +int over
+    +int ball
+    +String text
+}
+News and Articles:
+plaintext
+Copy
+class News {
+    +String newsId
+    +String title
+    +String content
+    +Date publishedDate
+    +String author
+}
+User Management:
+plaintext
+Copy
+class User {
+    +String userId
+    +String username
+    +String email
+    +String passwordHash
+    +List<Team> favoriteTeams
+    +List<Player> favoritePlayers
+}
+
+class Notification {
+    +String notificationId
+    +String userId
+    +String message
+    +Date timestamp
+    +NotificationStatus status
+}
+
+enum NotificationStatus {
+    SENT,
+    READ
+}
+3. Database Schema
+The database schema aligns with the class diagram above. Here’s a refined version:
+
+Matches:
+sql
+Copy
+CREATE TABLE Matches (
+    match_id VARCHAR(50) PRIMARY KEY,
+    team1_id VARCHAR(50) REFERENCES Teams(team_id),
+    team2_id VARCHAR(50) REFERENCES Teams(team_id),
+    venue VARCHAR(100),
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    status VARCHAR(20) -- e.g., "upcoming", "live", "completed"
+);
+Innings:
+sql
+Copy
+CREATE TABLE Innings (
+    inning_id VARCHAR(50) PRIMARY KEY,
+    match_id VARCHAR(50) REFERENCES Matches(match_id),
+    batting_team_id VARCHAR(50) REFERENCES Teams(team_id),
+    bowling_team_id VARCHAR(50) REFERENCES Teams(team_id)
+);
+Overs:
+sql
+Copy
+CREATE TABLE Overs (
+    over_id VARCHAR(50) PRIMARY KEY,
+    inning_id VARCHAR(50) REFERENCES Innings(inning_id),
+    over_number INT
+);
+Balls:
+sql
+Copy
+CREATE TABLE Balls (
+    ball_id VARCHAR(50) PRIMARY KEY,
+    over_id VARCHAR(50) REFERENCES Overs(over_id),
+    batsman_id VARCHAR(50) REFERENCES Players(player_id),
+    bowler_id VARCHAR(50) REFERENCES Players(player_id),
+    runs INT,
+    is_wicket BOOLEAN,
+    commentary TEXT
+);
+Teams:
+sql
+Copy
+CREATE TABLE Teams (
+    team_id VARCHAR(50) PRIMARY KEY,
+    team_name VARCHAR(100),
+    country VARCHAR(50)
+);
+Players:
+sql
+Copy
+CREATE TABLE Players (
+    player_id VARCHAR(50) PRIMARY KEY,
+    player_name VARCHAR(100),
+    team_id VARCHAR(50) REFERENCES Teams(team_id),
+    role VARCHAR(20) -- e.g., "batsman", "bowler"
+);
+News:
+sql
+Copy
+CREATE TABLE News (
+    news_id VARCHAR(50) PRIMARY KEY,
+    title VARCHAR(200),
+    content TEXT,
+    published_date TIMESTAMP,
+    author VARCHAR(100)
+);
+Users:
+sql
+Copy
+CREATE TABLE Users (
+    user_id VARCHAR(50) PRIMARY KEY,
+    username VARCHAR(100),
+    email VARCHAR(100),
+    password_hash VARCHAR(100)
+);
+Notifications:
+sql
+Copy
+CREATE TABLE Notifications (
+    notification_id VARCHAR(50) PRIMARY KEY,
+    user_id VARCHAR(50) REFERENCES Users(user_id),
+    message TEXT,
+    timestamp TIMESTAMP,
+    status VARCHAR(20) -- e.g., "sent", "read"
+);
+4. System Flow
+Match Updates:
+
+Data providers push live match data to the backend.
+
+The MatchService updates the Matches, Innings, Overs, and Balls tables.
+
+Live scores and commentary are cached in Redis for quick access.
+
+User Interactions:
+
+Users can view live scores, commentary, and news via the frontend.
+
+The UserService manages user preferences and notifications.
+
+Notifications:
+
+The NotificationService sends real-time updates (e.g., match start, wicket fall) to users via push notifications or email.
+
+News and Articles:
+
+The NewsService fetches and displays cricket-related news on the frontend.
+
+5. API Endpoints
+GET /matches: Fetch list of matches.
+
+GET /matches/{match_id}: Fetch details of a specific match.
+
+GET /matches/{match_id}/scorecard: Fetch scorecard for a match.
+
+GET /matches/{match_id}/commentary: Fetch ball-by-ball commentary.
+
+POST /users: Create a new user.
+
+GET /news: Fetch latest cricket news.
+
+POST /notifications: Send notifications to users.
